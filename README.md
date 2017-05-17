@@ -1,9 +1,11 @@
 Employee Roster
 ================
 
-Building and running
+Application build as spring boot application , and requier java 8.
 
-Application using Mysql DB and tomcat, db properties are mentioned in property file..
+###Building and running
+
+Application using H2 In Memmory datat and tomcat, db properties are mentioned in property file..
 
 ### Building
 
@@ -12,7 +14,7 @@ The example can be built with
     mvn clean install
 
 
-### Running the example locally
+### Running the Employee Roster locally
 
 The example can be run locally using the following Maven goal:
 
@@ -23,7 +25,7 @@ Test the ser `http://localhost:8586/rest/employee` (here the context-path has to
 
 
 
-
+### The APIs available 
 ---
 
    1)
