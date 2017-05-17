@@ -1,13 +1,12 @@
 package com.mt.assignment.config;
 
-import com.mt.assignment.rest.resource.RestResource;
-import com.mt.assignment.service.MessageService;
-
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.mt.assignment.rest.resource.EmplyeeResource;
+
 
 @Configuration
-@ComponentScan(basePackageClasses = {RestResource.class, MessageService.class})
+@ComponentScan(basePackageClasses = {EmplyeeResource.class})
 public class TestConfig {
 }

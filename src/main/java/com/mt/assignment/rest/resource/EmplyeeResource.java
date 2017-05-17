@@ -2,7 +2,7 @@ package com.mt.assignment.rest.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -43,18 +43,16 @@ public class EmplyeeResource {
 	 * @return
 	 */
 	@Path("/employee/")
-	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML,MediaType.TEXT_HTML})
+	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@GET
 	public List<EmployeeDTO> getEmployee() {
 		List<EmployeeDTO> employees = null;
 		try {
 			employees = rosterServiceImpl.findEmployees();
 		} catch (Exception e) {
-			return new ArrayList<>();
-			/*return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Employees Not Found</body></html>").build();*/
+			return Collections.emptyList();
 		}
-		return employees;//Response.status(Status.OK).header("Content-Type", "application/json").entity(employees).build();
+		return employees;
 	}
 
 	/**
@@ -66,23 +64,21 @@ public class EmplyeeResource {
 	 * @return
 	 */
 	@Path("/employee/{id}")
-	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML,MediaType.TEXT_HTML})
+	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
 	@GET
 	public Response getEmployee(@PathParam("id") String id) {
 		logger.info("Inside getEmployee id: {}", id);
 
 		if (StringUtils.isEmpty(id)) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Employee Not Found</body></html>").build();
+			return Response.status(Status.BAD_REQUEST).build();
 		}
 		EmployeeDTO employeeDTO = null;
 		try {
 			employeeDTO = rosterServiceImpl.findEmployeeById(id);
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Employee Not Found</body></html>").build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-		return Response.status(Status.OK).header("Content-Type", "text/html").entity(employeeDTO).build();
+		return Response.status(Status.OK).entity(employeeDTO).build();
 	}
 
 	/**
@@ -93,24 +89,20 @@ public class EmplyeeResource {
 	 * @throws URISyntaxException 
 	 */
 	@Path("/employee")
-	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON,MediaType.APPLICATION_FORM_URLENCODED})
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@POST
 	public Response postEmployee(EmployeeDTO employeeDTOs) throws URISyntaxException {
 		if (employeeDTOs == null) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Error creating Employee </body></html>").build();
+			return Response.status(Status.BAD_REQUEST).build();
 		}
 		logger.info("Inside getEmployee id: {}", employeeDTOs.getDesignation());
 		EmployeeDTO employee = null;
 		try {
 			employee = rosterServiceImpl.createEmployees(employeeDTOs);
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Error creating Employee </body></html>").build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-		return Response.created(new URI(employee.getEmployeeId().toString())).build();
-				//(Status.OK).header("Content-Type", "text/html").entity(employee).build();
+		return Response.status(Status.OK).build();
 	}
 
 	/**
@@ -125,24 +117,21 @@ public class EmplyeeResource {
 	 * @throws URISyntaxException 
 	 */
 	@Path("/employee/{id}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@PUT
 	public Response updateEmployee(@PathParam("id") String id, EmployeeDTO employeeDTOs) throws URISyntaxException {
 
 		if (StringUtils.isEmpty(id)) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Employee Not Found</body></html>").build();
+			return Response.status(Status.BAD_REQUEST).build();
 		}
 		logger.info("Inside getEmployee id: {}", id);
 		EmployeeDTO employee;
 		try {
 			employee = rosterServiceImpl.updateEmployees(employeeDTOs, id);
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Error in updating Employee!!</body></html>").build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-//		return Response.status(Status.OK).header("Content-Type", "text/html").entity(employee).build();
-		return Response.noContent().location(new URI(employee.getEmployeeId().toString())).build();
+		return Response.accepted().location(new URI(employee.getEmployeeId().toString())).build();
 		
 	}
 
@@ -154,19 +143,17 @@ public class EmplyeeResource {
 	 */
 	
 	@Path("/employee/{id}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@DELETE
 	public Response deleteEmployee(@PathParam("id") String id) {
 		if (StringUtils.isEmpty(id)) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Employee Not Found</body></html>").build();
+			return Response.status(Status.BAD_REQUEST).build();
 		}
 		logger.info("Inside getEmployee id: {}", id);
 		try {
 			rosterServiceImpl.deleteEmployees(id);
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
-					.entity("<html><body>Error deleting Employee</body></html>").build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 		return Response.status(Status.OK).build();
 	}
@@ -178,9 +165,64 @@ public class EmplyeeResource {
 	 * @return
 	 */
 	@Path("/employee/multiple")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	@POST
 	public Response postEmployee(List<EmployeeDTO> employeeDTOs) {
+		if (null == employeeDTOs) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		logger.info("Inside getEmployee id: {}", employeeDTOs.size());
+		List<EmployeeDTO> employees = null;
+		try {
+			employees = rosterServiceImpl.createEmployees(employeeDTOs);
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.status(Status.OK).build();
+
+	}
+	
+	
+	
+	/**
+	 * 7 - Url: /employeeform Type: POST Content-Type: application/json
+	 * 
+	 * @param employeeDTOs
+	 * @return
+	 * @throws URISyntaxException 
+	 */
+	@Path("/employeeform")
+	@Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML,MediaType.TEXT_HTML})
+	@Produces(MediaType.TEXT_HTML)
+	@POST
+	public Response postEmployeeForm(EmployeeDTO employeeDTOs) throws URISyntaxException {
+		if (employeeDTOs == null) {
+			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
+					.entity("<html><body>Error creating Employee </body></html>").build();
+		}
+		logger.info("Inside getEmployee id: {}", employeeDTOs.getDesignation());
+		EmployeeDTO employee = null;
+		try {
+			employee = rosterServiceImpl.createEmployees(employeeDTOs);
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
+					.entity("<html><body>Error creating Employee </body></html>").build();
+		}
+		return Response.created(new URI(employee.getEmployeeId().toString())).entity(employee).build();
+	}
+
+
+	/**
+	 * 8 Url: /employeeform/multiple Type: POST Content-Type: application/json
+	 * 
+	 * @param employeeDTOs
+	 * @return
+	 */
+	@Path("/employeeform/multiple")
+	@Consumes({"application/json", "application/x-www-form-urlencoded"})
+	@Produces({"application/json", "application/x-www-form-urlencoded"})
+	@POST
+	public Response postEmployeeForm(List<EmployeeDTO> employeeDTOs) {
 		if (null == employeeDTOs) {
 			return Response.status(Status.BAD_REQUEST).header("Content-Type", "text/html")
 					.entity("<html><body>Employee Not Found</body></html>").build();
@@ -197,4 +239,5 @@ public class EmplyeeResource {
 
 	}
 
+	
 }
